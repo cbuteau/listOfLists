@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+
+  "name": "LinkLists Plugin",
+  "description": "This stores multiple lists if links to all open at once.",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "1460274384_Company.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "activeTab",
+    "https://ajax.googleapis.com/"
+  ]
+}
