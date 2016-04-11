@@ -107,9 +107,45 @@ function persistListOfLists(list) {
   chrome.storage.sync.set(list);
 };
 
-function refreshList(list) {
-  if (list !== null && list !== undefined) {
+function clearAllChildren(unorderedList) {
+  while (unorderedList.firstChild) {
+    unorderedList.removeChild(unorderedList.firstChild);
+  }
+}
 
+function addListItem(parent, text, openCallback, removeCallback) {
+  var li = document.createElement('li');
+  li.appendChild(document.createTextNode(text));
+  var buttonOpen = document.createElement('button');
+  buttonOpen.appendChild(document.createTextNode('G'));
+  buttonOpen.addEventListener('click', openCallback);
+  li.appendChild(buttonOpen);
+
+  var buttonDelete = document.createElement('button');
+  buttonDelete.appendChild(document.createTextNode('X'));
+  buttonDelete.addEventListener('click', removeCallback);
+
+  parent.appendChild(li);
+}
+
+function refreshList(list) {
+  var listElement = document.getElementById('listOfLists');
+  clearAllChildren(listElement);
+  var fakeRoot = document.createDocumentFragment();
+  if (list !== null && list !== undefined) {
+    var keys = Object.keys(list);
+    for (var k = 0; k < keys.length; k++) {
+      var key = keys[k];
+      addListItem(fakeRoot, key, function open() {
+        var urls = list[key];
+        openListInTabs(urls);
+      }, function del() {
+        chrome.storage.sync.remove(key);
+        delete list[key];
+        refreshList(list);
+      });
+    }
+    listElement.appendChild(fakeRoot);
   }
 }
 
@@ -124,6 +160,14 @@ var testUrls = [
 document.addEventListener('DOMContentLoaded', function() {
   var listOfLists = {};
 
+  chrome.storage.sync.get(null, function(storedData) {
+    if (storedData !== null && storedData !== undefined) {
+      listOfLists = storedData;
+    }
+    refreshList(listOfLists);
+  });
+
+  /*
   chrome.storage.sync.get(null, function(stored) {
     var list = document.getElementById('listOfLists');
     var fakeRoot = document.createDocumentFragment();
@@ -160,25 +204,30 @@ document.addEventListener('DOMContentLoaded', function() {
       list.appendChild(fakeRoot);
     }
   });
+  */
 
 
-  var firstButton = document.getElementById('openTab');
-  firstButton.addEventListener('click', function() {
-    for (var i = 0; i < testUrls.length; i++) {
-      var createProps = {
-        url: testUrls[i],
-      }
-
-      chrome.tabs.create(createProps);
-    }
-  })
+  // var firstButton = document.getElementById('openTab');
+  // firstButton.addEventListener('click', function() {
+  //   for (var i = 0; i < testUrls.length; i++) {
+  //     var createProps = {
+  //       url: testUrls[i],
+  //     }
+  //
+  //     chrome.tabs.create(createProps);
+  //   }
+  // })
 
   var saveButton = document.getElementById('saveList');
   saveButton.addEventListener('click', function() {
     var queryInfo = {
       active: true,               // Select active tabs
     };
-    chrome.tabs.query(queryInfo, function (allTabs) {
+    var queryInfo2 = {
+      windowId: chrome.windows.WINDOW_ID_CURRENT,
+      currentWindow: true,
+    };
+    chrome.tabs.query(queryInfo2, function (allTabs) {
       var list = [];
       for (var i = 0; i < allTabs.length; i++)
       {
