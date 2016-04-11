@@ -117,13 +117,28 @@ function addListItem(parent, text, openCallback, removeCallback) {
   var li = document.createElement('li');
   li.appendChild(document.createTextNode(text));
   var buttonOpen = document.createElement('button');
-  buttonOpen.appendChild(document.createTextNode('G'));
+  var openImage = document.createElement('input');
+  openImage.type = 'image';
+  var openUrl =  chrome.extension.getURL('go.png');
+  openImage.src = openUrl;
+  openImage.style = 'width: auto; height: auto;';
+  buttonOpen.appendChild(openImage);
+  //buttonOpen.src = 'url(\'go.png\')';
+  //buttonOpen.appendChild(document.createTextNode('G'));
   buttonOpen.addEventListener('click', openCallback);
   li.appendChild(buttonOpen);
 
   var buttonDelete = document.createElement('button');
-  buttonDelete.appendChild(document.createTextNode('X'));
+  var delImage = document.createElement('input');
+  var delUrl =  chrome.extension.getURL('delete.png');
+  delImage.type = 'image';
+  delImage.src = delUrl;
+  delImage.style = 'width: auto; height: auto;';
+  buttonDelete.appendChild(delImage);
+  //buttonDelete.src = 'url(\'delete.png\')';
+  //buttonDelete.appendChild(document.createTextNode('X'));
   buttonDelete.addEventListener('click', removeCallback);
+  li.appendChild(buttonDelete);
 
   parent.appendChild(li);
 }
