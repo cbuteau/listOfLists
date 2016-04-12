@@ -10,9 +10,11 @@ Need better graphics for the buttons.
 
 # TODO
 
-Cleanup up code so it is mroe readable.
+Cleanup up code so it is more readable.
 Investigate packaging.
 
 Cleanup directory so we do not get thumbs.db warning.
 
 Shrink button images.
+
+Enable add button when textfield has something.
