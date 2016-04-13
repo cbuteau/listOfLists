@@ -10,11 +10,11 @@ Need better graphics for the buttons.
 
 # TODO
 
-Cleanup up code so it is more readable.
-Investigate packaging.
++ Get packaging building in Travis
++ Test long names.
++ Change text of button for exiting key to replace.
 
-Cleanup directory so we do not get thumbs.db warning.
++ Start with hover lists...then make them clickable.
+http://css.maxdesign.com.au/listamatic/vertical08.htm
 
-Shrink button images.
-
-Enable add button when textfield has something.
+Cleaning pass of HTML and javascript.

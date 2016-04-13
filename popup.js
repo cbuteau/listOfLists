@@ -4,6 +4,14 @@
 
 var DATA_KEY_ATTR = 'data-key';
 
+function queryAllTabsInCurrentWindow(callback) {
+  var queryInfo = {
+    windowId: chrome.windows.WINDOW_ID_CURRENT,
+    currentWindow: true,
+  };
+  chrome.tabs.query(queryInfo, callback);
+}
+
 function openListInTabs(list) {
   for (var i = 0; i < list.length; i++) {
     var url = list[i];
@@ -15,6 +23,23 @@ function openListInTabs(list) {
   }
 };
 
+function showTabs() {
+  var showList = document.getElementById('tabList');
+  clearAllChildren(showList);
+  // Perform tab query.
+  queryAllTabsInCurrentWindow(function(allTabs) {
+    var docFrag = document.createDocumentFragment();
+    for (var i = 0; i < allTabs.length; i++) {
+      var tab = allTabs[i];
+      var url = tab.url;
+      var li = document.createElement('li');
+      li.appendChild(document.createTextNode(url));
+      docFrag.appendChild(li);
+    }
+    showList.appendChild(docFrag);
+  })
+}
+
 function persistListOfLists(list) {
   chrome.storage.sync.set(list);
 };
@@ -25,11 +50,19 @@ function clearAllChildren(unorderedList) {
   }
 }
 
+// hover items straigth from
+
 function addListItem(parent, text, key, openCallback, removeCallback) {
   var li = document.createElement('li');
   // store key in custom attr.
   li.setAttribute(DATA_KEY_ATTR, key);
-  li.appendChild(document.createTextNode(text));
+  var link = document.createElement('a');
+  link.setAttribute('href', '#');
+  link.appendChild(document.createTextNode(text));
+  link.addEventListener('click', openCallback);
+  li.appendChild(link);
+  //li.appendChild(document.createElement('a').appendChild(document.createTextNode(text)));
+  //li.appendChild(document.createTextNode(text));
   var buttonOpen = document.createElement('button');
   var openImage = document.createElement('input');
   openImage.type = 'image';
@@ -60,6 +93,8 @@ function addListItem(parent, text, key, openCallback, removeCallback) {
 }
 
 function refreshList(list) {
+  //alert('Stop here');
+  //debugger;
   var listElement = document.getElementById('listOfLists');
   clearAllChildren(listElement);
   var fakeRoot = document.createDocumentFragment();
@@ -82,13 +117,7 @@ function refreshList(list) {
   }
 }
 
-//console.error('I am here')
-
-var testUrls = [
-  'http://google.com',
-  'http://bluesnews.com',
-  'http://github.com'
-];
+console.error('I am here')
 
 document.addEventListener('DOMContentLoaded', function() {
   var listOfLists = {};
@@ -100,13 +129,24 @@ document.addEventListener('DOMContentLoaded', function() {
     refreshList(listOfLists);
   });
 
+  var showButton = document.getElementById('showTabList');
+  showButton.addEventListener('click', function() {
+    showTabs();
+  });
+
   var saveButton = document.getElementById('saveList');
   var nameInput = document.getElementById('nameLL');
   // start disabled.
   saveButton.disabled = true;
   nameInput.addEventListener('keyup', function() {
     // enable if string is more than 0 chars.
-    if (nameInput.value !== '') {
+    var key = nameInput.value;
+    if (key !== '') {
+        if (listOfLists.hasOwnProperty(key)) {
+          saveButton.innerText = 'Replace List';
+        } else {
+          saveButton.innerText = 'Save List';
+        }
         saveButton.disabled = false;
     } else {
         saveButton.disabled = true;
