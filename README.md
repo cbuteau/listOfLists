@@ -1,6 +1,16 @@
 
 # Link Lists
 
+## Status
+
+Badges and stuff.
+
+[![Build Status](https://travis-ci.org/cbuteau/listoflists.svg?branch=master)](https://travis-ci.org/cbuteau/listoflists)
+
+
+
+## Concept
+
 The need for multiple shutdown lists of links in tabs.
 
 You take a bunch of tags and give it a name.
@@ -17,4 +27,14 @@ Need better graphics for the buttons.
 + Start with hover lists...then make them clickable.
 http://css.maxdesign.com.au/listamatic/vertical08.htm
 
++ debug why background-color is not working.
+Used Named colors
+http://html-color-codes.info/color-names/
+
++ finish layout
++ get package script going.
+
 Cleaning pass of HTML and javascript.
+
++ maybe add jquery and hook events that way instead.
+http://stackoverflow.com/questions/21317476/how-to-use-jquery-in-chrome-extension

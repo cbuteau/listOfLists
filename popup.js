@@ -1,13 +1,17 @@
 'use strict';
 
+
 // Copyright (c) 2016 Christopher Buteau.
 
 var DATA_KEY_ATTR = 'data-key';
 
+var SAVE_LIST = 'Save List';
+var REPLACE_LIST = 'Replace List';
+
 function queryAllTabsInCurrentWindow(callback) {
   var queryInfo = {
     windowId: chrome.windows.WINDOW_ID_CURRENT,
-    currentWindow: true,
+    currentWindow: true
   };
   chrome.tabs.query(queryInfo, callback);
 }
@@ -143,15 +147,32 @@ document.addEventListener('DOMContentLoaded', function() {
     var key = nameInput.value;
     if (key !== '') {
         if (listOfLists.hasOwnProperty(key)) {
-          saveButton.innerText = 'Replace List';
+          saveButton.innerText = REPLACE_LIST;
         } else {
-          saveButton.innerText = 'Save List';
+          saveButton.innerText = SAVE_LIST;
         }
         saveButton.disabled = false;
     } else {
+        saveButton.innerText = SAVE_LIST;
         saveButton.disabled = true;
     }
   });
+
+  nameInput.addEventListener('blur', function(event) {
+    console.log('blur');
+    console.log(event);
+    event.target.value = 'Name the Tabs you now have open.';
+    event.target.style.color='#BBB';
+  });
+
+  nameInput.addEventListener('focus', function(event) {
+    console.log('focus');
+    console.log(event);
+    event.target.value = '';
+    event.target.style.color='#000';
+  });
+
+  nameInput.blue();
 
   saveButton.addEventListener('click', function() {
     var queryInfo = {

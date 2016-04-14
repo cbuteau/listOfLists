@@ -17,6 +17,9 @@ ul
   list-style-type: none;
 }
 
+/* http://css.maxdesign.com.au/listamatic/vertical08.htm */
+/* begin hover list style */
+
 #navcontainer { width: 200px; }
 
 #navcontainer ul
@@ -50,20 +53,28 @@ color: #fff;
 
 .dataentry
 {
-  background-color: #0E9
-  width: 200px;
-  height: 100px;
+/* background-color: #0E9 */
+  background-color: PaleTurquoise;
+  width: 250px;
+  height: 50px;
   border-style: solid;
   border-color: black;
-  border-width: 4px;
+  border-width: 1px;
 }
 
 .currentlist
 {
-  background-color: #031
-  width: 200px;
+/*  background-color: #031 */
+  background-color: ForestGreen;
+  width: 400px;
   height: 100px;
   border-style: solid;
   border-color: black;
-  border-width: 4px;
+  border-width: 1px;
+  overflow-y:scroll;
+}
+
+.controls
+{
+    text-indent: +2em;
 }
