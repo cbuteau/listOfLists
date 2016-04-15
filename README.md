@@ -3,9 +3,8 @@
 
 ## Status
 
-Badges and stuff.
 
-[![Build Status](https://travis-ci.org/cbuteau/listoflists.svg?branch=master)](https://travis-ci.org/cbuteau/listoflists)
+[![Build Status](https://travis-ci.org/cbuteau/listOfLists.svg?branch=master)](https://travis-ci.org/cbuteau/listOfLists)
 
 
 
