@@ -20,6 +20,8 @@ Need better graphics for the buttons.
 # TODO
 
 + Get packaging building in Travis
+  * We got the zip creating...BUG for crx..
+  * https://github.com/PavelVanecek/gulp-crx/issues/7
 + Test long names.
 + Change text of button for exiting key to replace.
 

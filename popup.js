@@ -8,6 +8,14 @@ var DATA_KEY_ATTR = 'data-key';
 var SAVE_LIST = 'Save List';
 var REPLACE_LIST = 'Replace List';
 
+var NAME_OVERLAY = 'Name the list of Tabs';
+
+function updateStatus(status) {
+  var statusDiv = document.getElementById('status');
+  var content = document.createTextNode(status);
+  statusDiv.appendChild(content);
+}
+
 function queryAllTabsInCurrentWindow(callback) {
   var queryInfo = {
     windowId: chrome.windows.WINDOW_ID_CURRENT,
@@ -25,6 +33,7 @@ function openListInTabs(list) {
 
     chrome.tabs.create(createProps);
   }
+  updateStatus('Open Complete');
 };
 
 function showTabs() {
@@ -121,6 +130,16 @@ function refreshList(list) {
   }
 }
 
+function setOverlay(input) {
+  input.value = NAME_OVERLAY;
+  input.style.color='#BBB';
+}
+
+function clearOverlay(input) {
+  input.value = '';
+  input.style.color='#000';
+}
+
 console.error('I am here')
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -161,20 +180,24 @@ document.addEventListener('DOMContentLoaded', function() {
   nameInput.addEventListener('blur', function(event) {
     console.log('blur');
     console.log(event);
-    event.target.value = 'Name the Tabs you now have open.';
-    event.target.style.color='#BBB';
+    setOverlay(event.target);
+    // event.target.value = NAME_OVERLAY;
+    // event.target.style.color='#BBB';
   });
 
   nameInput.addEventListener('focus', function(event) {
     console.log('focus');
     console.log(event);
-    event.target.value = '';
-    event.target.style.color='#000';
+    clearOverlay(event.target);
+    // event.target.value = '';
+    // event.target.style.color='#000';
   });
 
-  nameInput.blue();
+  setOverlay(nameInput);
 
-  saveButton.addEventListener('click', function() {
+  // moving to mousedown so the blur doesn't replace the name.
+  saveButton.addEventListener('mousedown', function(event) {
+    event.preventDefault();
     var queryInfo = {
       active: true,               // Select active tabs
     };
@@ -194,7 +217,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
       listOfLists[name] = list;
       chrome.storage.sync.set(listOfLists);
+      updateStatus('Update complete');
+      setOverlay(input);
     });
   });
-
 });
