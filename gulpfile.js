@@ -42,7 +42,6 @@ gulp.task('extension', function() {
 });
 
 gulp.task('package', function() {
-  // TODO filter out other files somehow.
   runSequence(['staging', 'extension']);
 
   // gulp.src(['manifest.json',
