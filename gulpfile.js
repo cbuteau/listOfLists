@@ -18,13 +18,17 @@ gulp.task('default', function() {
 });
 
 gulp.task('staging', function() {
+    var debugOptions = {
+      title: 'staging:',
+      minimal: false
+    };
     gulp.src(['manifest.json',
       '*.png',
       'popup.js',
       'popup.html',
       'popup.css'])
-      .pipe(gulpdebug({title: 'staging:'}))
-      .pipe(gulp.dest('./dist'));
+      .pipe(gulpdebug(debugOptions))
+      .pipe(gulp.dest('./dist')).pipe(gulpdebug(debugOptions));
 
     var manifest = require('./dist/manifest.json');
 });
