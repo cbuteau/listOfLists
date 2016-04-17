@@ -29,9 +29,11 @@ gulp.task('staging', function() {
       'popup.css'])
       .pipe(gulpdebug(debugOptions))
       .pipe(gulp.dest('./dist')).pipe(gulpdebug(debugOptions));
-
-    var manifest = require('./dist/manifest.json');
 });
+
+gulp.task('manifest', function() {
+      var manifest = require('./dist/manifest.json');
+})
 
 gulp.task('extension', function() {
   var manifest = require('./dist/manifest.json');
@@ -51,7 +53,7 @@ gulp.task('extension', function() {
 });
 
 gulp.task('package', function(cb) {
-  runSequence('staging', 'extension', cb);
+  runSequence('staging', 'manifest' ,'extension', cb);
 
   // gulp.src(['manifest.json',
   //   '*.png',
