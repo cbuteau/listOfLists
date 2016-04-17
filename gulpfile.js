@@ -15,16 +15,42 @@ gulp.task('default', function() {
       'package');
 });
 
+gulp.task('staging', function() {
+    gulp.src(['manifest.json',
+      '*.png',
+      'popup.js',
+      'popup.html',
+      'popup.css'])
+      .pipe(gulp.dest('./dist'));
+});
+
+gulp.task('extension', function() {
+  var manifest = require('./dist/manifest.json');
+  var packageName = 'listOfLinks-' + manifest.version + '.zip';
+
+  // gulp.src('./dist/**').pipe(
+  //   crx({
+  //     privateKey: fs.readFileSync('./certs/listOfLists.pem'),
+  //     filename: packageName
+  //   }))
+  //   .pipe(gulp.dest('package'));
+
+  // this zips it...
+  gulp.src('./dist/**').pipe(plugins.zip('listOfLinks-' + manifest.version + '.zip'))
+    .pipe(gulp.dest('package'));
+
+});
+
 gulp.task('package', function() {
   // TODO filter out other files somehow.
+  runSequence(['staging', 'extension']);
 
-
-  gulp.src(['manifest.json',
-    '*.png',
-    'popup.js',
-    'popup.html',
-    'popup.css'])
-    .pipe(gulp.dest('./dist'));
+  // gulp.src(['manifest.json',
+  //   '*.png',
+  //   'popup.js',
+  //   'popup.html',
+  //   'popup.css'])
+  //   .pipe(gulp.dest('./dist'));
 
 
   // gulp.src(['/**',
@@ -34,8 +60,8 @@ gulp.task('package', function() {
   // '!/package/**'])
   // .pipe(gulp.dest('./dist'));
 
-  var manifest = require('./dist/manifest.json');
-  var packageName = 'listOfLinks-' + manifest.version + '.zip';
+  // var manifest = require('./manifest.json');
+  // var packageName = 'listOfLinks-' + manifest.version + '.zip';
 
   // gulp.src('./dist/**').pipe(
   //   crx({
@@ -47,6 +73,6 @@ gulp.task('package', function() {
 
 
   // this zips it...
-  gulp.src('./dist/**').pipe(plugins.zip('listOfLinks-' + manifest.version + '.zip'))
-    .pipe(gulp.dest('package'));
+  // gulp.src('./dist/**').pipe(plugins.zip('listOfLinks-' + manifest.version + '.zip'))
+  //   .pipe(gulp.dest('package'));
 });
