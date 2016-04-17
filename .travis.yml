@@ -1,7 +1,7 @@
 anguage: node_js
 node_js:
   - "4"
-before_install: "npm install gulp"
+before_install: "npm install"
 script: "gulp"
 # Forward data to coveralls.io
 # after_script: "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
