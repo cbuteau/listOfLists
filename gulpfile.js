@@ -8,6 +8,8 @@ var runSequence = require('run-sequence');
 var crx = require('gulp-crx-pack');
 var plugins = require('gulp-load-plugins')();
 
+var gulpdebug = require('gulp-debug');
+
 gulp.task('default', function() {
 //  console.log('Default gulp');
 
@@ -21,7 +23,10 @@ gulp.task('staging', function() {
       'popup.js',
       'popup.html',
       'popup.css'])
-      .pipe(gulp.dest('./dist')).pipe(console.log);
+      .pipe(gulpdebug({title: 'staging:'}))
+      .pipe(gulp.dest('./dist'));
+
+    var manifest = require('./dist/manifest.json');
 });
 
 gulp.task('extension', function() {
