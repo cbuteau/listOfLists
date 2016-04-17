@@ -41,8 +41,8 @@ gulp.task('extension', function() {
 
 });
 
-gulp.task('package', function() {
-  runSequence(['staging', 'extension']);
+gulp.task('package', function(cb) {
+  runSequence('staging', 'extension', cb);
 
   // gulp.src(['manifest.json',
   //   '*.png',
