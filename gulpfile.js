@@ -22,20 +22,22 @@ gulp.task('staging', function() {
       title: 'staging:',
       minimal: false
     };
-    gulp.src(['manifest.json',
+    var stream = gulp.src(['manifest.json',
       '*.png',
       'popup.js',
       'popup.html',
       'popup.css'])
       .pipe(gulpdebug(debugOptions))
       .pipe(gulp.dest('./dist')).pipe(gulpdebug(debugOptions));
+
+    return stream;
 });
 
-gulp.task('manifest', function() {
+gulp.task('manifest', ['staging'] ,function() {
       var manifest = require('./dist/manifest.json');
-})
+});
 
-gulp.task('extension', function() {
+gulp.task('extension', ['manifest'], function() {
   var manifest = require('./dist/manifest.json');
   var packageName = 'listOfLinks-' + manifest.version + '.zip';
 
@@ -47,9 +49,10 @@ gulp.task('extension', function() {
   //   .pipe(gulp.dest('package'));
 
   // this zips it...
-  gulp.src('./dist/**').pipe(plugins.zip('listOfLinks-' + manifest.version + '.zip'))
+  var stream = gulp.src('./dist/**').pipe(plugins.zip('listOfLinks-' + manifest.version + '.zip'))
     .pipe(gulp.dest('package'));
 
+  return stream;
 });
 
 gulp.task('package', ['staging', 'manifest', 'extension'], function(cb) {
