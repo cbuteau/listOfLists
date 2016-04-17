@@ -21,7 +21,7 @@ gulp.task('staging', function() {
       'popup.js',
       'popup.html',
       'popup.css'])
-      .pipe(gulp.dest('./dist'));
+      .pipe(gulp.dest('./dist')).pipe(console.log);
 });
 
 gulp.task('extension', function() {
