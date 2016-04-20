@@ -12,21 +12,16 @@
 
 The need for multiple shutdown lists of links in tabs.
 
-You take a bunch of tags and give it a name.
+You take a bunch of tabs and give it a name.
 It you call up your list of names and open them.
 
-Need better graphics for the buttons.
-
 # TODO
-
-+ Build BRoken
-  * can't load manifest.json from dist dir...which means it did not copy.
 
 + Get packaging building in Travis
   * We got the zip creating...BUG for crx..
   * https://github.com/PavelVanecek/gulp-crx/issues/7
 + Test long names.
-+ Change text of button for exiting key to replace.
++ Change text of button for existing key to replace.
 
 + Start with hover lists...then make them clickable.
 http://css.maxdesign.com.au/listamatic/vertical08.htm
@@ -35,8 +30,19 @@ http://css.maxdesign.com.au/listamatic/vertical08.htm
 Used Named colors
 http://html-color-codes.info/color-names/
 
++ Hide save buttons and show it if name it typed in.  Do lookup of data-key.
+
 + finish layout
+  * get buttons to align to right of list items. (more css magic.)
+  * finally aligned.
 + get package script going.
+  * We started with gulp at least zipping the package.
+  * we have an outstanding bug for crx
+  * we tested gulp.src and that was not the problem.
+  * problem is probably deep in crx which gulp-crx-pack is using.
+
++ Need better graphics for the buttons.
+  * First pass with InkScape...better
 
 Cleaning pass of HTML and javascript.
 

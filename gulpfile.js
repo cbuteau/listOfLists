@@ -6,6 +6,7 @@ var fs = require('fs');
 var gulp = require('gulp');
 var runSequence = require('run-sequence');
 var crx = require('gulp-crx-pack');
+var ChromeExtension = require('crx');
 var plugins = require('gulp-load-plugins')();
 
 var gulpdebug = require('gulp-debug');
@@ -41,14 +42,19 @@ gulp.task('extension', ['manifest'], function() {
   var manifest = require('./dist/manifest.json');
   var packageName = 'listOfLinks-' + manifest.version + '.zip';
 
-  // gulp.src('./dist/**').pipe(
+  gulp.src('./dist/**').pipe(gulpdebug({
+    title: 'extension:',
+    minimal: false
+  }));
+
+  // var stream = gulp.src('./dist/**').pipe(
   //   crx({
   //     privateKey: fs.readFileSync('./certs/listOfLists.pem'),
   //     filename: packageName
   //   }))
   //   .pipe(gulp.dest('package'));
 
-  // this zips it...
+  //this zips it...
   var stream = gulp.src('./dist/**').pipe(plugins.zip('listOfLinks-' + manifest.version + '.zip'))
     .pipe(gulp.dest('package'));
 

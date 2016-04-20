@@ -15,7 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="new_icon.svg">
+   sodipodi:docname="new_icon.svg"
+   inkscape:export-filename="D:\chrome\listOfLists\new_icon.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -23,10 +26,10 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35"
-     inkscape:cx="-46.428571"
+     inkscape:cx="-52.142857"
      inkscape:cy="520"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -49,10 +52,16 @@
     </rdf:RDF>
   </metadata>
   <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Background"
+     style="display:inline" />
+  <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-598.8189)">
+     transform="translate(0,-598.8189)"
+     style="display:inline">
     <flowRoot
        xml:space="preserve"
        id="flowRoot3336"
@@ -83,13 +92,6 @@
        cy="810.93365"
        rx="55.714287"
        ry="204.28571"
-       style="fill:#008000" />
-    <ellipse
-       style="fill:#f2f2f2"
-       id="path4174"
-       cx="228.57143"
-       cy="806.64795"
-       rx="34.285713"
-       ry="177.14285" />
+       style="fill:none;stroke:#36b858;stroke-opacity:1;stroke-width:20;stroke-miterlimit:4;stroke-dasharray:none" />
   </g>
 </svg>

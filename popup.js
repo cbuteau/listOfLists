@@ -16,6 +16,40 @@ function updateStatus(status) {
   statusDiv.appendChild(content);
 }
 
+function hideSaveButtons() {
+  var saveButtons = document.getElementsByTagName('button');
+  for (var i = 0; i < saveButtons.length; i++) {
+    var sb = saveButtons[i];
+    if (sb.id === 'save') {
+      sb.style.visibility = 'collapse';
+    }
+  }
+}
+
+function getParentDataKey(element) {
+  var key = null;
+  var control = element;
+  while (key === null) {
+    key = control.getAttribute(DATA_KEY_ATTR);
+    control = control.parentElement;
+  }
+
+  return key;
+}
+
+function showSpecificSaveButton(dataKey) {
+  var saveButtons = document.getElementsByTagName('button');
+  for (var i = 0; i < saveButtons.length; i++) {
+    var sb = saveButtons[i];
+    if (sb.id === 'save') {
+      var key = getParentDataKey(sb);
+      if (key === dataKey) {
+        sb.style.visibility = 'visible';
+      }
+    }
+  }
+}
+
 function queryAllTabsInCurrentWindow(callback) {
   var queryInfo = {
     windowId: chrome.windows.WINDOW_ID_CURRENT,
@@ -63,17 +97,72 @@ function clearAllChildren(unorderedList) {
   }
 }
 
+function addListChild(parent, callback) {
+  var li = document.createElement('li');
+  callback(li);
+  parent.appendChild(li);
+}
+
+function createButton(iconPath, id) {
+  var button = document.createElement('button');
+  button.id = id;
+  var image = document.createElement('input');
+  image.type = 'image';
+  var url =  chrome.extension.getURL(iconPath);
+  image.src = url;
+  image.style = 'width: 100%; height: 100%;';
+  button.appendChild(image);
+  button.style = 'width: 32px; height: auto; border: 0';
+
+  return button;
+}
 // hover items straigth from
 
 function addListItem(parent, text, key, openCallback, removeCallback) {
   var li = document.createElement('li');
   // store key in custom attr.
   li.setAttribute(DATA_KEY_ATTR, key);
+
+  var listData = document.createElement('ul');
+  listData.id="navlist";
+
+  addListChild(listData, function(parent) {
+    var link = document.createElement('a');
+    link.setAttribute('href', '#');
+    link.appendChild(document.createTextNode(text));
+    link.addEventListener('click', openCallback);
+    parent.appendChild(link);
+  });
+
+  addListChild(listData, function(parent) {
+    var buttonOpen = createButton('go.png', 'open');
+    parent.appendChild(buttonOpen);
+    buttonOpen.addEventListener('click', openCallback);
+  });
+
+  addListChild(listData, function(parent) {
+    var buttonSave = createButton('Floppy.png', 'save');
+    parent.appendChild(buttonSave);
+  });
+
+  addListChild(listData, function(parent) {
+    var buttonDelete = createButton('delete.png', 'delete');
+    parent.appendChild(buttonDelete);
+    buttonDelete.addEventListener('click', removeCallback);
+  });
+
+  li.appendChild(listData);
+
+  parent.appendChild(li);
+  return;
+
   var link = document.createElement('a');
   link.setAttribute('href', '#');
   link.appendChild(document.createTextNode(text));
   link.addEventListener('click', openCallback);
   li.appendChild(link);
+
+
   //li.appendChild(document.createElement('a').appendChild(document.createTextNode(text)));
   //li.appendChild(document.createTextNode(text));
   var buttonOpen = document.createElement('button');
@@ -81,9 +170,9 @@ function addListItem(parent, text, key, openCallback, removeCallback) {
   openImage.type = 'image';
   var openUrl =  chrome.extension.getURL('go.png');
   openImage.src = openUrl;
-  openImage.style = 'width: 25%; height: 25%;';
+  openImage.style = 'width: 100%; height: 100%;';
   buttonOpen.appendChild(openImage);
-  buttonOpen.style = 'width: auto; height: auto; border: 0';
+  buttonOpen.style = 'width: 32px; height: auto; border: 0';
   //buttonOpen.src = 'url(\'go.png\')';
   //buttonOpen.appendChild(document.createTextNode('G'));
   buttonOpen.addEventListener('click', openCallback);
@@ -94,9 +183,9 @@ function addListItem(parent, text, key, openCallback, removeCallback) {
   var delUrl =  chrome.extension.getURL('delete.png');
   delImage.type = 'image';
   delImage.src = delUrl;
-  delImage.style = 'width: 25%; height: 25%;';
+  delImage.style = 'width: 100%; height: 100%;';
   buttonDelete.appendChild(delImage);
-  buttonDelete.style = 'width: auto; height: auto; border: 0';
+  buttonDelete.style = 'width: 32px; height: auto; border: 0';
   //buttonDelete.src = 'url(\'delete.png\')';
   //buttonDelete.appendChild(document.createTextNode('X'));
   buttonDelete.addEventListener('click', removeCallback);
@@ -116,11 +205,13 @@ function refreshList(list) {
     for (var k = 0; k < keys.length; k++) {
       var key = keys[k];
       addListItem(fakeRoot, key, key, function open(event) {
-        var openKey = event.currentTarget.parentElement.getAttribute(DATA_KEY_ATTR);
+        var control = event.currentTarget;
+        var openKey = getParentDataKey(control);
         var urls = list[openKey];
         openListInTabs(urls);
       }, function del(event) {
-        var delKey = event.currentTarget.parentElement.getAttribute(DATA_KEY_ATTR);
+        var control = event.currentTarget;
+        var delKey = getParentDataKey(control);
         chrome.storage.sync.remove(delKey);
         delete list[delKey];
         refreshList(list);
@@ -150,6 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
       listOfLists = storedData;
     }
     refreshList(listOfLists);
+    hideSaveButtons();
   });
 
   var showButton = document.getElementById('showTabList');
@@ -166,8 +258,10 @@ document.addEventListener('DOMContentLoaded', function() {
     var key = nameInput.value;
     if (key !== '') {
         if (listOfLists.hasOwnProperty(key)) {
+          showSpecificSaveButton(key);
           saveButton.innerText = REPLACE_LIST;
         } else {
+          hideSaveButtons();
           saveButton.innerText = SAVE_LIST;
         }
         saveButton.disabled = false;
@@ -199,13 +293,10 @@ document.addEventListener('DOMContentLoaded', function() {
   saveButton.addEventListener('mousedown', function(event) {
     event.preventDefault();
     var queryInfo = {
-      active: true,               // Select active tabs
-    };
-    var queryInfo2 = {
       windowId: chrome.windows.WINDOW_ID_CURRENT,
       currentWindow: true,
     };
-    chrome.tabs.query(queryInfo2, function (allTabs) {
+    chrome.tabs.query(queryInfo, function (allTabs) {
       var list = [];
       for (var i = 0; i < allTabs.length; i++)
       {

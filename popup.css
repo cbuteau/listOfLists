@@ -51,11 +51,49 @@ background-color: #369;
 color: #fff;
 }
 
+/* end hover list style */
+
+
+#navlist li
+{
+display: inline;
+list-style-type: none;
+zoom:1;
+}
+
+padding-right: 20px;
+
+#listOfLists ul
+{
+  width: 300 px;
+}
+
+ul#navlist
+{
+  width: inherit;
+  list-style-type: none;
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+ul#navlist li
+{
+  display: inline-block;
+}
+
+.listoflists
+{
+  width: 300px;
+}
+
+
+
 .dataentry
 {
 /* background-color: #0E9 */
   background-color: PaleTurquoise;
-  width: 250px;
+  width: 300px;
   height: 50px;
   border-style: solid;
   border-color: black;
