@@ -10,8 +10,115 @@ var REPLACE_LIST = 'Replace List';
 
 var NAME_OVERLAY = 'Name the list of Tabs';
 
+var INVALID_INDEX = -1;
+
+function RafEngine() {
+  this.work = [];
+  this.perms = [];
+  this._raf();
+}
+
+RafEngine.prototype.think = function() {
+
+  for (var i = 0; i < this.perms.length; i++) {
+    var perm = this.perms[i];
+    perm();
+  }
+
+  var pop = this.work.pop();
+  while (pop !== null && pop !== undefined) {
+    if (isFunc(pop)) {
+      pop();
+    }
+    pop = this.work.pop();
+  }
+
+  this._raf();
+};
+
+RafEngine.prototype._raf = function() {
+  requestAnimationFrame(this.think.bind(this));
+};
+
+RafEngine.prototype.perm = function(callback) {
+  this.perms.push(callback);
+};
+
+RafEngine.prototype.queue = function(callback) {
+  this.work.push(callback);
+};
+
+function isFunc(func) {
+  if (func.apply && func.call && func.bind) {
+      return true;
+    }
+
+    return false;
+  }
+
+function compareUrlLists(urls, current) {
+  var findCount = 0;
+  var findList = [];
+  for (var i = 0; i < urls.length; i++) {
+    var url = urls[i];
+    if (current.indexOf(url) !== INVALID_INDEX) {
+      // we can only FIND it ONCE...no dupes
+      if (findList.indexOf(url) === INVALID_INDEX) {
+        findList.push(url);
+      }
+      // found it.
+      findCount++;
+    }
+  }
+
+  //console.log('Findcount=' + findCount + ' urls.lenght=' + urls.length);
+  var diff = findList.length - urls.length;
+  if (Math.abs(diff) <= 2) {
+    console.log('findcount=' + findList.length + ' urls=' + urls.length);
+  }
+
+  return findList.length === urls.length;
+}
+
+function startComparison(listOfLists, update) {
+    gatherCurrentUrls(function (urls) {
+      var key = compareUrls(listOfLists, urls);
+      update(key);
+    })
+}
+
+function gatherCurrentUrls(callback) {
+  var queryInfo = {
+    windowId: chrome.windows.WINDOW_ID_CURRENT,
+    currentWindow: true,
+  };
+  chrome.tabs.query(queryInfo, function (allTabs) {
+    var list = [];
+    for (var i = 0; i < allTabs.length; i++)
+    {
+      var tab = allTabs[i];
+      list.push(tab.url);
+    }
+
+    callback(list);
+  });
+}
+
+function compareUrls(listOfLists, urls) {
+  var keys = Object.keys(listOfLists);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    //console.log('list=' + key);
+    var urllist = listOfLists[key];
+    if (compareUrlLists(urllist, urls)) {
+      return key;
+    }
+  }
+}
+
 function updateStatus(status) {
   var statusDiv = document.getElementById('status');
+  clearAllChildren(statusDiv);
   var content = document.createTextNode(status);
   statusDiv.appendChild(content);
 }
@@ -59,16 +166,24 @@ function queryAllTabsInCurrentWindow(callback) {
 }
 
 function openListInTabs(list) {
-  for (var i = 0; i < list.length; i++) {
-    var url = list[i];
-    var createProps = {
-      url: url,
-    };
+  chrome.tabs.getSelected(null, function(tab) {
+    //chrome.tabs.remove(tab.id);
+    for (var i = 0; i < list.length; i++) {
+      var url = list[i];
+      var createProps = {
+        url: url,
+      };
 
-    chrome.tabs.create(createProps);
-  }
-  updateStatus('Open Complete');
+      if (i === 0) {
+        chrome.tabs.update(tab.id, createProps);
+      } else {
+        chrome.tabs.create(createProps);
+      }
+    }
+    updateStatus('Open Complete');
+  });
 };
+
 
 function showTabs() {
   var showList = document.getElementById('tabList');
@@ -231,10 +346,20 @@ function clearOverlay(input) {
   input.style.color='#000';
 }
 
-console.error('I am here')
+console.error('I am here');
+
+function updateCurrent(currentKey){
+  var current = document.getElementById('current');
+  if (currentKey === null || currentKey === undefined) {
+    current.innerHTML = '';
+  } else {
+    current.innerHTML = currentKey;
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   var listOfLists = {};
+  var engine = new RafEngine();
 
   chrome.storage.sync.get(null, function(storedData) {
     if (storedData !== null && storedData !== undefined) {
@@ -242,6 +367,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     refreshList(listOfLists);
     hideSaveButtons();
+    engine.perm(function() {
+      startComparison(listOfLists, function (keyCurrent) {
+        updateCurrent(keyCurrent);
+      });
+    });
   });
 
   var showButton = document.getElementById('showTabList');
@@ -272,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   nameInput.addEventListener('blur', function(event) {
-    console.log('blur');
+    //console.log('blur');
     console.log(event);
     setOverlay(event.target);
     // event.target.value = NAME_OVERLAY;
@@ -280,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   nameInput.addEventListener('focus', function(event) {
-    console.log('focus');
+    //console.log('focus');
     console.log(event);
     clearOverlay(event.target);
     // event.target.value = '';
@@ -312,4 +442,6 @@ document.addEventListener('DOMContentLoaded', function() {
       setOverlay(input);
     });
   });
+
+  var engine = new RafEngine();
 });

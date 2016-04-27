@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "babel": "6.5.2",
+    "fs-extra": "0.28.0",
     "generator-chrome-extension": "0.5.6",
     "gulp": "3.9.1",
     "gulp-crx-pack": "1.0.1",
