@@ -5,8 +5,8 @@ var fs = require('fs');
 
 var gulp = require('gulp');
 var runSequence = require('run-sequence');
-var crx = require('gulp-crx-pack');
-var ChromeExtension = require('crx');
+//var crx = require('gulp-crx-pack');
+//var ChromeExtension = require('crx');
 var plugins = require('gulp-load-plugins')();
 
 var gulpdebug = require('gulp-debug');
