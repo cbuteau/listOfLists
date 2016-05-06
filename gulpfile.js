@@ -4,6 +4,8 @@
 var fs = require('fs');
 
 var gulp = require('gulp');
+var exec = require('child_process').exec;
+
 var runSequence = require('run-sequence');
 //var crx = require('gulp-crx-pack');
 //var ChromeExtension = require('crx');
@@ -28,8 +30,7 @@ gulp.task('staging', function() {
       'popup.js',
       'popup.html',
       'popup.css'])
-      .pipe(gulpdebug(debugOptions))
-      .pipe(gulp.dest('./dist')).pipe(gulpdebug(debugOptions));
+      .pipe(gulp.dest('./dist')); //.pipe(gulpdebug(debugOptions));
 
     return stream;
 });
@@ -42,10 +43,12 @@ gulp.task('extension', ['manifest'], function() {
   var manifest = require('./dist/manifest.json');
   var packageName = 'listOfLinks-' + manifest.version + '.zip';
 
-  gulp.src('./dist/**').pipe(gulpdebug({
-    title: 'extension:',
-    minimal: false
-  }));
+  var crxName = 'listOfLinks-' + manifest.version + '.crx';
+
+  exec('node .//node_modules//crx//bin//crx.js pack dist -o ' + crxName + ' -p .//certs//listOfLists.pem', function(err, stdout, stderr) {
+    console.log(stdout);
+    console.log(stderr);
+  });
 
   // var stream = gulp.src('./dist/**').pipe(
   //   crx({

@@ -17,11 +17,11 @@ It you call up your list of names and open them.
 
 # TODO
 
-+ Make list recognition moer specific.
-+ Open first url in first tab.
 
 + Get packaging building in Travis
   * We got the zip creating...BUG for crx..
+  * command line crx with gulp-exec
+
   * https://github.com/PavelVanecek/gulp-crx/issues/7
   * NO one watching the bugs...tried supplanting wrench with fs-extra.copy() as the wrench github suggested but just ran inot another problem.
 
@@ -34,9 +34,8 @@ It you call up your list of names and open them.
 ```
  * Created a bug at crx (ChromeExtension)[https://github.com/oncletom/crx/issues/55]
 
- * Mayeb we can commandline it like the website suggests...use crx CLI interface.
+ * Maybe we can commandline it like the website suggests...use crx CLI interface.
 + Test long names.
-+ Change text of button for existing key to replace.
 
 + Start with hover lists...then make them clickable.
 http://css.maxdesign.com.au/listamatic/vertical08.htm
