@@ -12,49 +12,8 @@ var NAME_OVERLAY = 'Name the list of Tabs';
 
 var INVALID_INDEX = -1;
 
-function RafEngine() {
-  this.work = [];
-  this.perms = [];
-  this._raf();
-}
 
-RafEngine.prototype.think = function() {
 
-  for (var i = 0; i < this.perms.length; i++) {
-    var perm = this.perms[i];
-    perm();
-  }
-
-  var pop = this.work.pop();
-  while (pop !== null && pop !== undefined) {
-    if (isFunc(pop)) {
-      pop();
-    }
-    pop = this.work.pop();
-  }
-
-  this._raf();
-};
-
-RafEngine.prototype._raf = function() {
-  requestAnimationFrame(this.think.bind(this));
-};
-
-RafEngine.prototype.perm = function(callback) {
-  this.perms.push(callback);
-};
-
-RafEngine.prototype.queue = function(callback) {
-  this.work.push(callback);
-};
-
-function isFunc(func) {
-  if (func.apply && func.call && func.bind) {
-      return true;
-    }
-
-    return false;
-  }
 
 function compareUrlLists(urls, current) {
   var findCount = 0;
@@ -80,9 +39,70 @@ function compareUrlLists(urls, current) {
   return findList.length === urls.length;
 }
 
+function countHowManyMatch(urls, current) {
+  var findCount = 0;
+  var findList = [];
+  for (var i = 0; i < urls.length; i++) {
+    var url = urls[i];
+    if (current.indexOf(url) !== INVALID_INDEX) {
+      // we can only FIND it ONCE...no dupes
+      if (findList.indexOf(url) === INVALID_INDEX) {
+        findList.push(url);
+      }
+      // found it.
+      findCount++;
+    }
+  }
+
+  return findList.length;
+}
+
+function findBestMatch(listOfLists, urls) {
+  var keys = Object.keys(listOfLists);
+
+  var stats = {};
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    //console.log('list=' + key);
+    var urllist = listOfLists[key];
+    var count = countHowManyMatch(urls, urllist);
+    stats[key] = {
+      matchCount: count,
+      count: urllist.length
+    };
+  }
+
+  return stats;
+}
+
+function determineClosestList(stats) {
+  var matchKeys = Object.keys(stats);
+  for(var j = 0; j < matchKeys.length; j++) {
+    var key = matchKeys[j];
+    var category = stats[key];
+    if (category.matchCount > 0) {
+      var rate = category.matchCount / category.count;
+      if (rate >= 0.8) {
+        if (category.matchCount > category.count) {
+          key += ' +' + (category.matchCount - category.count);
+        } else {
+          key += ' -' + (category.count - category.matchCount);
+        }
+        return key;
+      }
+    }
+  }
+}
+
 function startComparison(listOfLists, update) {
     gatherCurrentUrls(function (urls) {
       var key = compareUrls(listOfLists, urls);
+      if (key === undefined) {
+        var match = findBestMatch(listOfLists, urls);
+        //console.log(match);
+        key = determineClosestList(match);
+      }
       update(key);
     })
 }
@@ -357,9 +377,10 @@ function updateCurrent(currentKey){
   }
 }
 
+/*
 document.addEventListener('DOMContentLoaded', function() {
   var listOfLists = {};
-  var engine = new RafEngine();
+  //var engine = new RafEngine();
 
   chrome.storage.sync.get(null, function(storedData) {
     if (storedData !== null && storedData !== undefined) {
@@ -443,5 +464,93 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  //var engine = new RafEngine();
+});
+*/
+
+requirejs(['scripts/RafEngine'], function(RafEngine) {
   var engine = new RafEngine();
+  var listOfLists = {};
+  //var engine = new RafEngine();
+
+  chrome.storage.sync.get(null, function(storedData) {
+    if (storedData !== null && storedData !== undefined) {
+      listOfLists = storedData;
+    }
+    refreshList(listOfLists);
+    hideSaveButtons();
+    engine.perm(function() {
+      startComparison(listOfLists, function (keyCurrent) {
+        updateCurrent(keyCurrent);
+      });
+    });
+  });
+  var showButton = document.getElementById('showTabList');
+  showButton.addEventListener('click', function() {
+    showTabs();
+  });
+
+  var saveButton = document.getElementById('saveList');
+  var nameInput = document.getElementById('nameLL');
+  // start disabled.
+  saveButton.disabled = true;
+  nameInput.addEventListener('keyup', function() {
+    // enable if string is more than 0 chars.
+    var key = nameInput.value;
+    if (key !== '') {
+        if (listOfLists.hasOwnProperty(key)) {
+          showSpecificSaveButton(key);
+          saveButton.innerText = REPLACE_LIST;
+        } else {
+          hideSaveButtons();
+          saveButton.innerText = SAVE_LIST;
+        }
+        saveButton.disabled = false;
+    } else {
+        saveButton.innerText = SAVE_LIST;
+        saveButton.disabled = true;
+    }
+  });
+
+  nameInput.addEventListener('blur', function(event) {
+    //console.log('blur');
+    console.log(event);
+    setOverlay(event.target);
+    // event.target.value = NAME_OVERLAY;
+    // event.target.style.color='#BBB';
+  });
+
+  nameInput.addEventListener('focus', function(event) {
+    //console.log('focus');
+    console.log(event);
+    clearOverlay(event.target);
+    // event.target.value = '';
+    // event.target.style.color='#000';
+  });
+
+  setOverlay(nameInput);
+
+  // moving to mousedown so the blur doesn't replace the name.
+  saveButton.addEventListener('mousedown', function(event) {
+    event.preventDefault();
+    var queryInfo = {
+      windowId: chrome.windows.WINDOW_ID_CURRENT,
+      currentWindow: true,
+    };
+    chrome.tabs.query(queryInfo, function (allTabs) {
+      var list = [];
+      for (var i = 0; i < allTabs.length; i++)
+      {
+        var tab = allTabs[i];
+        list.push(tab.url);
+      }
+      var input = document.getElementById('nameLL');
+      var name = input.value;
+
+      listOfLists[name] = list;
+      chrome.storage.sync.set(listOfLists);
+      updateStatus('Update complete');
+      setOverlay(input);
+    });
+  });
 });

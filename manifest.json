@@ -8,6 +8,9 @@
     "default_icon": "new_icon.png",
     "default_popup": "popup.html"
   },
+  "background": [
+    "scripts/requirejs-min-2.2.0.js"
+  ],
   "permissions": [
     "tabs",
     "storage",
