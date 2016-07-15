@@ -105,6 +105,7 @@ ul#navlist li
   border-style: solid;
   border-color: black;
   border-width: 1px;
+  box-shadow: 10px 10px 5px Silver;
 }
 
 .currentlist
@@ -122,4 +123,12 @@ ul#navlist li
 .controls
 {
     text-indent: +2em;
+}
+
+.hoverbutton {
+  border: 3px solid buttonface;
+}
+
+.hoverbutton:hover {
+  border: 3px solid black;
 }

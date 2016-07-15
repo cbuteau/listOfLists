@@ -12,7 +12,10 @@ var NAME_OVERLAY = 'Name the list of Tabs';
 
 var INVALID_INDEX = -1;
 
+// Globals
 
+var engine = null;
+var listOfLists = {};
 
 
 function compareUrlLists(urls, current) {
@@ -246,6 +249,7 @@ function createButton(iconPath, id) {
   var url =  chrome.extension.getURL(iconPath);
   image.src = url;
   image.style = 'width: 100%; height: 100%;';
+  image.className = 'hoverbutton';
   button.appendChild(image);
   button.style = 'width: 32px; height: auto; border: 0';
 
@@ -253,7 +257,7 @@ function createButton(iconPath, id) {
 }
 // hover items straigth from
 
-function addListItem(parent, text, key, openCallback, removeCallback) {
+function addListItem(parent, text, key, openCallback, removeCallback, saveCallback) {
   var li = document.createElement('li');
   // store key in custom attr.
   li.setAttribute(DATA_KEY_ATTR, key);
@@ -278,6 +282,7 @@ function addListItem(parent, text, key, openCallback, removeCallback) {
   addListChild(listData, function(parent) {
     var buttonSave = createButton('Floppy.png', 'save');
     parent.appendChild(buttonSave);
+    buttonSave.addEventListener('click', saveCallback);
   });
 
   addListChild(listData, function(parent) {
@@ -350,6 +355,11 @@ function refreshList(list) {
         chrome.storage.sync.remove(delKey);
         delete list[delKey];
         refreshList(list);
+      }, function sav(event) {
+        var control = event.currentTarget;
+        var savKey = getParentDataKey(control);
+        saveByName(savKey);
+        refreshList(list);
       });
     }
     listElement.appendChild(fakeRoot);
@@ -377,118 +387,87 @@ function updateCurrent(currentKey){
   }
 }
 
-/*
-document.addEventListener('DOMContentLoaded', function() {
-  var listOfLists = {};
-  //var engine = new RafEngine();
+function saveByName(name) {
+  var queryInfo = {
+    windowId: chrome.windows.WINDOW_ID_CURRENT,
+    currentWindow: true,
+  };
+  chrome.tabs.query(queryInfo, function (allTabs) {
+    var list = [];
+    for (var i = 0; i < allTabs.length; i++)
+    {
+      var tab = allTabs[i];
+      list.push(tab.url);
+    }
 
+    listOfLists[name] = list;
+    chrome.storage.sync.set(listOfLists);
+    updateStatus('Update complete');
+    //setOverlay(input);
+    fullRefresh();
+  });
+}
+
+function saveCurrent() {
+  var queryInfo = {
+    windowId: chrome.windows.WINDOW_ID_CURRENT,
+    currentWindow: true,
+  };
+  chrome.tabs.query(queryInfo, function (allTabs) {
+    var list = [];
+    for (var i = 0; i < allTabs.length; i++)
+    {
+      var tab = allTabs[i];
+      list.push(tab.url);
+    }
+    var input = document.getElementById('nameLL');
+    var name = input.value;
+
+    listOfLists[name] = list;
+    chrome.storage.sync.set(listOfLists);
+    updateStatus('Update complete');
+    setOverlay(input);
+    fullRefresh();
+  });
+}
+
+function fullRefresh() {
   chrome.storage.sync.get(null, function(storedData) {
     if (storedData !== null && storedData !== undefined) {
       listOfLists = storedData;
     }
     refreshList(listOfLists);
-    hideSaveButtons();
+    //hideSaveButtons();
     engine.perm(function() {
       startComparison(listOfLists, function (keyCurrent) {
         updateCurrent(keyCurrent);
       });
     });
   });
-
-  var showButton = document.getElementById('showTabList');
-  showButton.addEventListener('click', function() {
-    showTabs();
-  });
-
-  var saveButton = document.getElementById('saveList');
-  var nameInput = document.getElementById('nameLL');
-  // start disabled.
-  saveButton.disabled = true;
-  nameInput.addEventListener('keyup', function() {
-    // enable if string is more than 0 chars.
-    var key = nameInput.value;
-    if (key !== '') {
-        if (listOfLists.hasOwnProperty(key)) {
-          showSpecificSaveButton(key);
-          saveButton.innerText = REPLACE_LIST;
-        } else {
-          hideSaveButtons();
-          saveButton.innerText = SAVE_LIST;
-        }
-        saveButton.disabled = false;
-    } else {
-        saveButton.innerText = SAVE_LIST;
-        saveButton.disabled = true;
-    }
-  });
-
-  nameInput.addEventListener('blur', function(event) {
-    //console.log('blur');
-    console.log(event);
-    setOverlay(event.target);
-    // event.target.value = NAME_OVERLAY;
-    // event.target.style.color='#BBB';
-  });
-
-  nameInput.addEventListener('focus', function(event) {
-    //console.log('focus');
-    console.log(event);
-    clearOverlay(event.target);
-    // event.target.value = '';
-    // event.target.style.color='#000';
-  });
-
-  setOverlay(nameInput);
-
-  // moving to mousedown so the blur doesn't replace the name.
-  saveButton.addEventListener('mousedown', function(event) {
-    event.preventDefault();
-    var queryInfo = {
-      windowId: chrome.windows.WINDOW_ID_CURRENT,
-      currentWindow: true,
-    };
-    chrome.tabs.query(queryInfo, function (allTabs) {
-      var list = [];
-      for (var i = 0; i < allTabs.length; i++)
-      {
-        var tab = allTabs[i];
-        list.push(tab.url);
-      }
-      var input = document.getElementById('nameLL');
-      var name = input.value;
-
-      listOfLists[name] = list;
-      chrome.storage.sync.set(listOfLists);
-      updateStatus('Update complete');
-      setOverlay(input);
-    });
-  });
-
-  //var engine = new RafEngine();
-});
-*/
+}
 
 requirejs(['scripts/RafEngine'], function(RafEngine) {
-  var engine = new RafEngine();
-  var listOfLists = {};
-  //var engine = new RafEngine();
+  engine = new RafEngine();
 
-  chrome.storage.sync.get(null, function(storedData) {
-    if (storedData !== null && storedData !== undefined) {
-      listOfLists = storedData;
-    }
-    refreshList(listOfLists);
-    hideSaveButtons();
-    engine.perm(function() {
-      startComparison(listOfLists, function (keyCurrent) {
-        updateCurrent(keyCurrent);
-      });
-    });
-  });
-  var showButton = document.getElementById('showTabList');
-  showButton.addEventListener('click', function() {
-    showTabs();
-  });
+  fullRefresh();
+  // chrome.storage.sync.get(null, function(storedData) {
+  //   if (storedData !== null && storedData !== undefined) {
+  //     listOfLists = storedData;
+  //   }
+  //   refreshList(listOfLists);
+  //   hideSaveButtons();
+  //   engine.perm(function() {
+  //     startComparison(listOfLists, function (keyCurrent) {
+  //       updateCurrent(keyCurrent);
+  //     });
+  //   });
+  // });
+
+// Debug feature disabled...
+//  var showButton = document.getElementById('showTabList');
+//  showButton.addEventListener('click', function() {
+//    showTabs();
+//  });
 
   var saveButton = document.getElementById('saveList');
   var nameInput = document.getElementById('nameLL');
@@ -533,6 +512,8 @@ requirejs(['scripts/RafEngine'], function(RafEngine) {
   // moving to mousedown so the blur doesn't replace the name.
   saveButton.addEventListener('mousedown', function(event) {
     event.preventDefault();
+    engine.queue(saveCurrent);
+    /*
     var queryInfo = {
       windowId: chrome.windows.WINDOW_ID_CURRENT,
       currentWindow: true,
@@ -552,5 +533,6 @@ requirejs(['scripts/RafEngine'], function(RafEngine) {
       updateStatus('Update complete');
       setOverlay(input);
     });
+    */
   });
 });
