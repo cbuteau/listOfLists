@@ -36,7 +36,7 @@ function compareUrlLists(urls, current) {
   //console.log('Findcount=' + findCount + ' urls.lenght=' + urls.length);
   var diff = findList.length - urls.length;
   if (Math.abs(diff) <= 2) {
-    console.log('findcount=' + findList.length + ' urls=' + urls.length);
+    //console.log('findcount=' + findList.length + ' urls=' + urls.length);
   }
 
   return findList.length === urls.length;

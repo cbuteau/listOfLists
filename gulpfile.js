@@ -26,10 +26,13 @@ gulp.task('staging', function() {
       minimal: false
     };
     var stream = gulp.src(['manifest.json',
-      '*.png',
+      'delete.png',
+      'Floppy.png',
+      'go.png',
+      'new_icon.png',
       'popup.js',
       'popup.html',
-      'popup.css'])
+      'popup.css',])
       .pipe(gulp.dest('./dist')); //.pipe(gulpdebug(debugOptions));
 
     return stream;
@@ -37,6 +40,11 @@ gulp.task('staging', function() {
 
 gulp.task('manifest', ['staging'] ,function() {
       var manifest = require('./dist/manifest.json');
+});
+
+gulp.task('scripts', ['staging'], function() {
+  gulp.src('scripts/**/*')
+  .pipe(gulp.dest('./dist/scripts'));
 });
 
 gulp.task('extension', ['manifest'], function() {
@@ -64,7 +72,7 @@ gulp.task('extension', ['manifest'], function() {
   return stream;
 });
 
-gulp.task('package', ['staging', 'manifest', 'extension'], function(cb) {
+gulp.task('package', ['staging', 'scripts', 'manifest', 'extension'], function(cb) {
   console.log('Packaging...')
   //runSequence('staging', 'manifest' ,'extension', cb);
 
